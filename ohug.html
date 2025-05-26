@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Quiz Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 aspect ratio */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+    margin-bottom: 20px;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+        .video-placeholder {
+            width: 100%;
+            height: 300px;
+            background: linear-gradient(45deg, #f0f2f5, #e1e8ed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            color: #666;
+            border: 2px dashed #ccc;
+        }
+
+        .video-placeholder::before {
+            content: "🎥";
+            font-size: 3em;
+            margin-right: 15px;
+        }
+
+        .question-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .question {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(5px);
+        }
+
+        .option input[type="radio"] {
+            margin-right: 12px;
+            transform: scale(1.2);
+        }
+
+        .registration-form {
+            display: none;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .result-section {
+            display: none;
+            text-align: center;
+            animation: bounceIn 0.6s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .success {
+            color: #27ae60;
+        }
+
+        .error {
+            color: #e74c3c;
+        }
+
+        .prize-info {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+        }
+
+        .prize-info h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #f39c12;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .title {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1 class="title">🎯 Kloudstage Ascend Challenge</h1>
+                <p class="subtitle">Watch, Learn & Win Amazing Prizes!</p>
+            </div>
+
+            <!-- Video Section -->
+            <div class="video-container">
+                <iframe     src="https://www.youtube.com/embed/tgbNymZ7vqY" 
+                
+                    title="YouTube video player"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            
+
+            <!-- Quiz Section -->
+            <div id="quiz-section">
+                <div class="question-section">
+                    <div class="question">Question 1: What was the main topic discussed in the video?</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q1" value="a">
+                            Technology Innovation
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="b">
+                            Digital Marketing Strategies
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="c">
+                            Future of Web Development
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q1" value="d">
+                            Event Management
+                        </label>
+                    </div>
+                </div>
+
+                <div class="question-section">
+                    <div class="question">Question 2: Which key benefit was highlighted in the presentation?</div>
+                    <div class="options">
+                        <label class="option">
+                            <input type="radio" name="q2" value="a">
+                            Cost Reduction
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="b">
+                            Improved User Experience
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="c">
+                            Faster Implementation
+                        </label>
+                        <label class="option">
+                            <input type="radio" name="q2" value="d">
+                            Better Security
+                        </label>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="checkAnswers()">Submit Answers</button>
+            </div>
+
+            <!-- Registration Form -->
+            <div id="registration-form" class="registration-form">
+                <h2 style="text-align: center; margin-bottom: 25px; color: #27ae60;">🎉 Congratulations! You're Eligible!</h2>
+                <p style="text-align: center; margin-bottom: 30px; color: #666;">Register now to claim your prize and get event details:</p>
+                
+                <form onsubmit="submitRegistration(event)">
+                    <div class="form-group">
+                        <label for="fullName">Full Name *</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email Address *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number *</label>
+                        <input type="tel" id="phone" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="company">Company/Organization (Optional)</label>
+                        <input type="text" id="company">
+                    </div>
+                    
+                    <button type="submit" class="btn">Complete Registration</button>
+                </form>
+            </div>
+
+            <!-- Result Section -->
+            <div id="result-section" class="result-section">
+                <div id="success-message" class="success hidden">
+                    <h2>🎊 Registration Successful!</h2>
+                    <div class="prize-info">
+                        <h3>🏆 Your Prize Details</h3>
+                        <p><strong>🎁 Grand Prize:</strong> Premium Event Pass + Exclusive Merchandise</p>
+                        <p><strong>📅 Event Date:</strong> Coming Soon - Details in your email</p>
+                        <p><strong>📍 Location:</strong> Will be shared via email</p>
+                        <p><strong>💌 Next Steps:</strong> Check your email for complete event information and prize collection details</p>
+                    </div>
+                    <p style="margin-top: 20px; font-size: 1.1em;">Thank you for participating! We'll contact you soon with all the details.</p>
+                </div>
+
+                <div id="error-message" class="error hidden">
+                    <h2>❌ Sorry, Wrong Answers</h2>
+                    <p>Unfortunately, your answers weren't correct this time. Feel free to watch the video again and try once more!</p>
+                    <button class="btn" onclick="resetQuiz()" style="margin-top: 20px;">Try Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quiz configuration - Set correct answers here
+        const correctAnswers = {
+            q1: 'c', // Future of Web Development
+            q2: 'b'  // Improved User Experience
+        };
+
+        function checkAnswers() {
+            const q1Answer = document.querySelector('input[name="q1"]:checked');
+            const q2Answer = document.querySelector('input[name="q2"]:checked');
+
+            if (!q1Answer || !q2Answer) {
+                alert('Please answer both questions before submitting.');
+                return;
+            }
+
+            const userAnswers = {
+                q1: q1Answer.value,
+                q2: q2Answer.value
+            };
+
+            // Check if answers are correct
+            const isCorrect = userAnswers.q1 === correctAnswers.q1 && userAnswers.q2 === correctAnswers.q2;
+
+            if (isCorrect) {
+                // Show registration form
+                document.getElementById('quiz-section').style.display = 'none';
+                document.getElementById('registration-form').style.display = 'block';
+            } else {
+                // Show error message
+                document.getElementById('quiz-section').style.display = 'none';
+                document.getElementById('result-section').style.display = 'block';
+                document.getElementById('error-message').classList.remove('hidden');
+            }
+        }
+
+        // REPLACE THIS URL WITH YOUR GOOGLE SHEETS WEB APP URL
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwxMcBVENrWishtp1kBqzZ1CovKzm6Gvh8MnZel5iINGLxnOPlY4RR_Fguzt0IUcBqN/exec';
+
+        function submitRegistration(event) {
+            event.preventDefault();
+            
+            // Show loading state
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Submitting...';
+            submitBtn.disabled = true;
+            
+            // Get form data
+            const formData = {
+                timestamp: new Date().toLocaleString(),
+                fullName: document.getElementById('fullName').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                company: document.getElementById('company').value || 'Not provided',
+                quizScore: 'Passed',
+                eventId: 'EVENT_2025_001'
+            };
+
+            // Send data to Google Sheets
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                console.log('Data sent to Google Sheets successfully');
+                showSuccessMessage();
+            })
+            .catch((error) => {
+                console.error('Error sending data:', error);
+                // Still show success message as no-cors mode doesn't return response
+                showSuccessMessage();
+            });
+
+            function showSuccessMessage() {
+                // Reset button
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                // Show success message
+                document.getElementById('registration-form').style.display = 'none';
+                document.getElementById('result-section').style.display = 'block';
+                document.getElementById('success-message').classList.remove('hidden');
+
+                // Create confetti effect
+                createConfetti();
+            }
+        }
+
+        function resetQuiz() {
+            // Reset form
+            document.querySelectorAll('input[type="radio"]').forEach(input => input.checked = false);
+            
+            // Show quiz section again
+            document.getElementById('result-section').style.display = 'none';
+            document.getElementById('error-message').classList.add('hidden');
+            document.getElementById('quiz-section').style.display = 'block';
+        }
+
+        function createConfetti() {
+            const colors = ['#f39c12', '#e74c3c', '#9b59b6', '#3498db', '#2ecc71'];
+            
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 3000);
+                }, i * 100);
+            }
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to options
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    
+                    // Remove selection from other options in the same group
+                    const groupName = radio.name;
+                    const otherOptions = document.querySelectorAll(`input[name="${groupName}"]`);
+                    otherOptions.forEach(otherRadio => {
+                        if (otherRadio !== radio) {
+                            otherRadio.parentElement.style.background = 'white';
+                        }
+                    });
+                    
+                    // Highlight selected option
+                    this.style.background = 'rgba(102, 126, 234, 0.1)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
